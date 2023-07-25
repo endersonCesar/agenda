@@ -1,0 +1,7 @@
+.borda {
+  border-right: 5px solid rgb(244, 244, 244) !important;
+  border-top: 5px solid rgb(244, 244, 244) !important;
+}
+.altura {
+  height: 100%;
+}
