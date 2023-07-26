@@ -1,7 +1,26 @@
 .borda {
   border-right: 5px solid rgb(244, 244, 244) !important;
   border-top: 5px solid rgb(244, 244, 244) !important;
+  table-layout: fixed;
 }
 .altura {
   height: 100%;
+}
+.dayofMonth {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.event {
+  display: flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  margin: 4px 0px;
+}
+.td {
+  vertical-align: top;
+  overflow: hidden;
+  padding: 4px;
 }

@@ -17,13 +17,21 @@ import {
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import Avatar from "@mui/material/Avatar";
-
+import { IEvent, getEventsEndpoint } from "./backend";
+import { useEffect, useState } from "react";
 const DAYS_OF_WEEK = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
 
 export function CalendarScreen() {
-  const weeks = generateCalendar(getToday());
+  const [events, setEvents] = useState<IEvent[]>([]);
+  const weeks = generateCalendar(getToday(), events);
+
   const firstDate = weeks[0][0].date;
   const lastDate = weeks[weeks.length - 1][6].date;
+
+  useEffect(() => {
+    getEventsEndpoint(firstDate, lastDate).then(setEvents);
+  }, []);
+
   return (
     <Box display="flex" height="100%" alignItems="stretch">
       <Box
@@ -80,9 +88,25 @@ export function CalendarScreen() {
             {weeks.map((week, i) => (
               <TableRow key={i}>
                 {week.map((cell) => (
-                  <TableCell align="center" className="borda" key={cell.date}>
-                    {" "}
-                    {cell.date}
+                  <TableCell
+                    align="center"
+                    className="borda"
+                    key={cell.dayOfMonth}
+                  >
+                    <div className="dayofMonth">{cell.dayOfMonth}</div>
+                    {cell.events.map((event) => (
+                      <button className="event">
+                        {event.time && (
+                          <Icon fontSize="inherit">watch_later</Icon>
+                        )}
+                        {event.time && (
+                          <Box component={"span"} margin={"4px"}>
+                            {event.time}
+                          </Box>
+                        )}
+                        <span>{event.desc}</span>
+                      </button>
+                    ))}
                   </TableCell>
                 ))}
               </TableRow>
@@ -96,8 +120,13 @@ export function CalendarScreen() {
 
 interface ICalendarCell {
   date: string;
+  dayOfMonth: number;
+  events: IEvent[];
 }
-function generateCalendar(date: string): ICalendarCell[][] {
+function generateCalendar(
+  date: string,
+  allEvents: IEvent[]
+): ICalendarCell[][] {
   const weeks: ICalendarCell[][] = [];
   const jsDate = new Date(date + "T12:00:00");
   const currentMonth = jsDate.getMonth();
@@ -113,7 +142,11 @@ function generateCalendar(date: string): ICalendarCell[][] {
       const monthStr = (currentDay.getMonth() + 1).toString().padStart(2, "0");
       const dateStr = currentDay.getDate().toString().padStart(2, "0");
       const isoDate = `${currentDay.getFullYear()}-${monthStr}-${dateStr}`;
-      week.push({ date: isoDate });
+      week.push({
+        date: isoDate,
+        dayOfMonth: currentDay.getDate(),
+        events: allEvents.filter((e) => e.date === isoDate),
+      });
       currentDay.setDate(currentDay.getDate() + 1);
     }
     weeks.push(week);
